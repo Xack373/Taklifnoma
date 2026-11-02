@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>To'y Taklifnomasi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-cream: #FAF7F2;
+      --bg-card: #FFFFFF;
+      --primary-dark: #2A1D17;
+      --gold-main: #C59B27;
+      --gold-dark: #8C6A13;
+      --gold-light: #E8CA72;
+      --gold-gradient: linear-gradient(135deg, #B8860B 0%, #E8CA72 50%, #996515 100%);
+      --text-main: #2A1D17;
+      --text-muted: #6B5E55;
+      --shadow: 0 10px 30px rgba(42, 29, 23, 0.08);
+      --border-gold: 1px solid rgba(197, 155, 39, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: var(--bg-cream);
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      padding-bottom: 50px;
+    }
+
+    /* Modal / Welcome Overlay */
+    #welcomeModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #FAF7F2;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 30px;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    #welcomeModal.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .modal-card {
+      background: #FFFFFF;
+      border: 2px solid var(--gold-main);
+      border-radius: 20px;
+      padding: 40px 25px;
+      box-shadow: 0 15px 35px rgba(184, 134, 11, 0.15);
+      width: 100%;
+      max-width: 350px;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      color: var(--gold-dark);
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    .modal-names {
+      font-family: 'Alex Brush', cursive;
+      font-size: 3rem;
+      color: var(--primary-dark);
+      margin: 15px 0;
+    }
+
+    .open-btn {
+      margin-top: 25px;
+      background: var(--gold-gradient);
+      color: #FFF;
+      border: none;
+      padding: 16px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(197, 155, 39, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(197, 155, 39, 0.6); }
+      70% { transform: scale(1.04); box-shadow: 0 0 0 15px rgba(197, 155, 39, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(197, 155, 39, 0); }
+    }
+
+    /* Music Player */
+    .music-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 900;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #FFF;
+      border: 2px solid var(--gold-main);
+      color: var(--gold-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .music-btn.playing {
+      animation: spin 4s linear infinite;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* App Header / Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 25px 40px;
+      position: relative;
+    }
+
+    .hero-subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      letter-spacing: 4px;
+      color: var(--gold-dark);
+      text-transform: uppercase;
+      margin-bottom: 15px;
+    }
+
+    .hero-names {
+      font-family: 'Alex Brush', cursive;
+      font-size: 3.8rem;
+      color: var(--primary-dark);
+      line-height: 1.1;
+      margin-bottom: 15px;
+    }
+
+    .hero-date {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: var(--gold-dark);
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
+
+    .divider {
+      width: 80px;
+      height: 2px;
+      background: var(--gold-gradient);
+      margin: 25px auto;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      margin: 0 20px 25px;
+      padding: 25px 20px;
+      border-radius: 16px;
+      border: var(--border-gold);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      color: var(--gold-dark);
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+
+    /* Countdown */
+    .timer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .timer-block {
+      background: #FAF7F2;
+      padding: 12px 5px;
+      border-radius: 10px;
+      border: 1px solid rgba(197, 155, 39, 0.2);
+    }
+
+    .timer-number {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    .timer-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* Location & Calendar Buttons */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: transform 0.2s;
+    }
+
+    .action-btn:active { transform: scale(0.98); }
+
+    .btn-gold {
+      background: var(--gold-gradient);
+      color: #FFF;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--gold-main);
+      color: var(--gold-dark);
+    }
+
+    /* RSVP Form */
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #E0D6C8;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #FAF7F2;
+      color: var(--primary-dark);
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--gold-main);
+      background: #FFF;
+    }
+
+    /* Wishes Wall */
+    .wishes-list {
+      max-height: 250px;
+      overflow-y: auto;
+      text-align: left;
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .wish-item {
+      background: #FAF7F2;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border-left: 3px solid var(--gold-main);
+    }
+
+    .wish-author {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--gold-dark);
+    }
+
+    .wish-text {
+      font-size: 0.85rem;
+      color: var(--text-main);
+      margin-top: 4px;
+    }
+
+    .status-msg {
+      font-size: 0.85rem;
+      margin-top: 10px;
+      color: #27ae60;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Audio Player (Background Music) -->
+  <audio id="bgMusic" loop src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=wedding-piano-112677.mp3"></audio>
+
+  <button class="music-btn" id="musicToggle" title="Musiqa">🎵</button>
+
+  <div class="mobile-container">
+    
+    <!-- Modal Opening Page -->
+    <div id="welcomeModal">
+      <div class="modal-card">
+        <div class="modal-title">To'y Taklifnomasi</div>
+        <div class="divider"></div>
+        <div class="modal-names">Jasur & Madina</div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 10px;">
+          Sizni baxt kunchamizda birga bo'lishga taklif etamiz!
+        </p>
+        <button class="open-btn" id="openBtn">
+          ✉️ TAKLIFNOMANI OCHISH
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="hero">
+      <div class="hero-subtitle">Baxli Kun Taklifi</div>
+      <div class="hero-names">Jasur<br>&<br>Madina</div>
+      <div class="divider"></div>
+      <div class="hero-date">28 NOYABR, 2026</div>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">Shanba | Soat 18:00 da</p>
+    </div>
+
+    <!-- Countdown Timer -->
+    <div class="card">
+      <div class="card-title">Tadbirgacha Qoldi</div>
+      <div class="timer-grid">
+        <div class="timer-block">
+          <div class="timer-number" id="days">00</div>
+          <div class="timer-label">Kun</div>
+        </div>
+        <div class="timer-block">
+          <div class="timer-number" id="hours">00</div>
+          <div class="timer-label">Soat</div>
+        </div>
+        <div class="timer-block">
+          <div class="timer-number" id="minutes">00</div>
+          <div class="timer-label">Daqiqa</div>
+        </div>
+        <div class="timer-block">
+          <div class="timer-number" id="seconds">00</div>
+          <div class="timer-label">Soniya</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Venue Details & Maps -->
+    <div class="card">
+      <div class="card-title">Tadbir Manzili</div>
+      <p style="font-weight: 600; font-size: 1.05rem; color: var(--primary-dark);">"Yulduz" Tantanalar Saroyi</p>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Toshkent shahar, Yunusobod tumani, Amir Temur ko'chasi 15-uy</p>
+      
+      <div class="btn-group">
+        <a href="https://maps.google.com" target="_blank" class="action-btn btn-gold">
+          📍 Google Maps orqali ochish
+        </a>
+        <a href="https://yandex.com/maps" target="_blank" class="action-btn btn-outline">
+          🗺️ Yandex Maps orqali ochish
+        </a>
+      </div>
+    </div>
+
+    <!-- RSVP Form (Telegram Integration) -->
+    <div class="card">
+      <div class="card-title">Tashrifni Tasdiqlash</div>
+      <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 15px;">Iltimos, kelishingizni oldindan tasdiqlang</p>
+      
+      <form id="rsvpForm">
+        <div class="form-group">
+          <label>Ism va Familiyangiz</label>
+          <input type="text" class="form-input" id="guestName" placeholder="Masalan: Ali Valiyev" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Necha kishi bo'lib kelasiz?</label>
+          <select class="form-input" id="guestCount">
+            <option value="1 kishi">1 kishi</option>
+            <option value="2 kishi">2 kishi</option>
+            <option value="3+ kishi">3 kishi va undan ko'p</option>
+          </select>
+        </div>
+
+        <button type="submit" class="action-btn btn-gold" style="width: 100%; border: none; cursor: pointer;">
+          ✅ Tasdiqlash va Yuborish
+        </button>
+        <div class="status-msg" id="statusMsg">Rahmat! Tashrifingiz tasdiqlandi.</div>
+      </form>
+    </div>
+
+    <!-- Wishes Wall -->
+    <div class="card">
+      <div class="card-title">Ezgu Tilaklar</div>
+      <form id="wishForm">
+        <div class="form-group">
+          <input type="text" class="form-input" id="wishAuthor" placeholder="Ismingiz" required>
+        </div>
+        <div class="form-group">
+          <textarea class="form-input" id="wishText" rows="3" placeholder="Yoshlarga tilaklaringiz..." required></textarea>
+        </div>
+        <button type="submit" class="action-btn btn-outline" style="width: 100%; cursor: pointer;">
+          ✍️ Tilakni Qoldirish
+        </button>
+      </form>
+
+      <div class="wishes-list" id="wishesList">
+        <div class="wish-item">
+          <div class="wish-author">Sardor & Shahlo</div>
+          <div class="wish-text">Qoshtangiz bilan qo'sha qariylar! Baxtingizga ko'z tegmasin!</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- TELEGRAM BOT INTEGRATION CONFIG ---
+    // Bu yerga BotFather bergan token va UserInfoBot bergan IDingizni qo'yasiz:
+    const TELEGRAM_BOT_TOKEN = '8839760940:AAFiOIKYoA6ewda4bQGnRhIJ5HR2Ewx1hCw'; 
+    const TELEGRAM_CHAT_ID = '7633572260';
+
+    // --- Audio Control ---
+    const bgMusic = document.getElementById('bgMusic');
+    const musicToggle = document.getElementById('musicToggle');
+    let isPlaying = false;
+
+    function toggleMusic() {
+      if (isPlaying) {
+        bgMusic.pause();
+        musicToggle.classList.remove('playing');
+      } else {
+        bgMusic.play().catch(e => console.log('Audio autoplay blocked'));
+        musicToggle.classList.add('playing');
+      }
+      isPlaying = !isPlaying;
+    }
+
+    musicToggle.addEventListener('click', toggleMusic);
+
+    // --- Modal & Confetti ---
+    const openBtn = document.getElementById('openBtn');
+    const welcomeModal = document.getElementById('welcomeModal');
+
+    openBtn.addEventListener('click', () => {
+      welcomeModal.classList.add('hidden');
+      toggleMusic(); // Play audio on user interaction
+      
+      // Launch Confetti
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#C59B27', '#E8CA72', '#8C6A13']
+        });
+      }
+    });
+
+    // --- Countdown Timer ---
+    const weddingDate = new Date('2026-11-28T18:00:00').getTime();
+
+    function updateTimer() {
+      const now = new Date().getTime();
+      const distance = weddingDate - now;
+
+      if (distance < 0) {
+        document.getElementById('days').innerText = '00';
+        document.getElementById('hours').innerText = '00';
+        document.getElementById('minutes').innerText = '00';
+        document.getElementById('seconds').innerText = '00';
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById('days').innerText = days < 10 ? '0' + days : days;
+      document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
+      document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
+      document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+    }
+
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // --- Send Data to Telegram Bot ---
+    async function sendTelegramMessage(text) {
+      if (TELEGRAM_BOT_TOKEN === 'YOUR_BOT_TOKEN_HERE') {
+        console.log("Telegram Bot sozlanmagan. Xabar:", text);
+        return true;
+      }
+      
+      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+      try {
+        await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: text,
+            parse_mode: 'HTML'
+          })
+        });
+        return true;
+      } catch (err) {
+        console.error("Telegram API xatosi:", err);
+        return false;
+      }
+    }
+
+    // --- RSVP Form Handler ---
+    const rsvpForm = document.getElementById('rsvpForm');
+    const statusMsg = document.getElementById('statusMsg');
+
+    rsvpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('guestName').value;
+      const count = document.getElementById('guestCount').value;
+
+      const message = `<b>📬 Yangi Tashrif Tasdig'i!</b>\n\n<b>Ism:</b> ${name}\n<b>Kishilar soni:</b> ${count}`;
+      
+      await sendTelegramMessage(message);
+
+      statusMsg.style.display = 'block';
+      rsvpForm.reset();
+
+      setTimeout(() => {
+        statusMsg.style.display = 'none';
+      }, 4000);
+    });
+
+    // --- Wishes Form Handler ---
+    const wishForm = document.getElementById('wishForm');
+    const wishesList = document.getElementById('wishesList');
+
+    wishForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const author = document.getElementById('wishAuthor').value;
+      const text = document.getElementById('wishText').value;
+
+      // Add to UI
+      const wishItem = document.createElement('div');
+      wishItem.className = 'wish-item';
+      wishItem.innerHTML = `
+        <div class="wish-author">${author}</div>
+        <div class="wish-text">${text}</div>
+      `;
+      wishesList.prepend(wishItem);
+
+      // Send to Telegram
+      const message = `<b>💬 Yangi To'y Tilagi!</b>\n\n<b>Muallif:</b> ${author}\n<b>Tilak:</b> ${text}`;
+      await sendTelegramMessage(message);
+
+      wishForm.reset();
+    });
+  </script>
+</body>
+</html>
